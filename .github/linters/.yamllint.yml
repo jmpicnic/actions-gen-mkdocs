@@ -1,0 +1,10 @@
+---
+extends: default
+
+rules:
+  indentation:
+    indent-sequences: consistent
+    spaces: consistent
+  line-length: disable
+  new-lines:
+    type: unix

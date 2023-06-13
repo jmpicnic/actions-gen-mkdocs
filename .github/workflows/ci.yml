@@ -1,0 +1,107 @@
+---
+name: ci
+on: [push, pull_request]
+
+jobs:
+  validate-featureBranch:
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+    runs-on: light
+    steps:
+      - uses: actions/checkout@v2
+      - uses: denisa/clq-action@v1
+        id: clq-validate
+        with:
+          changeMap: .github/clq/changemap.json
+          dockerProxy: artifactory.flexport.io/docker/
+          mode: feature
+      - name: Echo changelog values
+        run: |
+          echo "$release_name"
+          echo "$release_tag -- $release_status"
+          echo "$body"
+        env:
+          release_tag: ${{ steps.clq-validate.outputs.tag }}
+          release_name: ${{ steps.clq-validate.outputs.name }}
+          release_status: ${{ steps.clq-validate.outputs.status }}
+          body: ${{ steps.clq-validate.outputs.changes }}
+  validate-release:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: light
+    steps:
+      - uses: actions/checkout@v2
+      - uses: denisa/clq-action@v1
+        id: clq-extract
+        with:
+          changeMap: .github/clq/changemap.json
+          dockerProxy: artifactory.flexport.io/docker/
+          mode: release
+      - uses: denisa/semantic-tag-helper@v1
+        with:
+          mode: test
+          tag: ${{ steps.clq-extract.outputs.tag }}
+  commit-message-has-jira:
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    runs-on: light
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/fpos-commit-message@v1
+  lint:
+    runs-on: light
+    steps:
+      - name: "Parses the GITHUB_SERVER_URL and returns the DOMAIN"
+        id: get-domain
+        run: |
+          # Parses the GITHUB_SERVER_URL and returns the url without https
+          # https://github.flexport.io/ -> github.flexport.io
+          ghe_url="$(echo "${GITHUB_SERVER_URL}" | cut -d'/' -f3 | cut -d':' -f1)"
+          echo "GITHUB_DOMAIN=${ghe_url}" >> "${GITHUB_OUTPUT}"
+      - uses: actions/checkout@v2
+      - uses: github/super-linter/slim@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_DOMAIN: ${{ steps.get-domain.outputs.github_domain }}
+          GITHUB_CUSTOM_API_URL: ${{ github.api_url }}
+          SUPPRESS_POSSUM: true
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_GITLEAKS: false
+          VALIDATE_JSCPD: false
+  pr-required-jobs:
+    if: github.event_name == 'pull_request' && always()
+    runs-on: light
+    needs: [commit-message-has-jira, lint, validate-release]
+    steps:
+    - run: |
+        set -x
+        if [ ${{ contains(needs.*.result, 'failure') }} = 'true' ]; then
+          echo "::error Failure from one or more needed job"
+          exit 1
+        fi
+        if [ ${{ contains(needs.*.result, 'cancelled') }} = 'true' ]; then
+          echo "::error One or more needed job have been canceled"
+          exit 1
+        fi
+        echo "All validations passed"
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: lint
+    runs-on: light
+    steps:
+      - uses: actions/checkout@v2
+      - uses: denisa/clq-action@v1
+        id: clq-extract
+        with:
+          changeMap: .github/clq/changemap.json
+          dockerProxy: artifactory.flexport.io/docker/
+      - uses: denisa/semantic-tag-helper@v1
+        with:
+          mode: set
+          tag: ${{ steps.clq-extract.outputs.tag }}
+      - uses: ncipollo/release-action@v1.10.0
+        with:
+          tag: ${{ steps.clq-extract.outputs.tag }}
+          prerelease: ${{ steps.clq-extract.outputs.status == 'prereleased' }}
+          name: ${{ steps.clq-extract.outputs.name }}
+          body: ${{ steps.clq-extract.outputs.changes }}

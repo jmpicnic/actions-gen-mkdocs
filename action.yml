@@ -1,0 +1,100 @@
+---
+name: action-build-mkdocs
+description: Reusable Action to generate mkdocs.
+inputs:
+  docs-dir:
+    description: |
+      Directory where the mkdocs.yml and requirements.txt file are expected to be and from where the content directory can be accessed (as configured in mkdocs.yml)
+    default: "."
+  site-target-dir:
+    description: |
+      Directory where the site is to be generated, **RELATIVE TO `docs-dir`**
+    default: "./gen-site"
+  requirements-file-name:
+    description: The name of the Python requirements file relative to docs-dir
+    default: "requirements.txt"
+  mkdocs-file-name:
+    description: "The name of the mkdocs config file relative to docs-dir"
+    default: "mkdocs.yml"
+  for-techdocs:
+    description: Whether the generation is intended to be used with techdocs-cli to publish to Backstage
+    default: "True"
+outputs:
+  generated-site:
+    description: The directory where the generated site is placed
+    value: ${{ steps.setup-paths.outputs.site-output-dir }}
+runs:
+  using: composite
+  steps:
+    - name: Set up paths
+      id: setup-paths
+      shell: bash
+      run: |
+        OUT_DIR=`realpath ${{ inputs.docs-dir }}/${{ inputs.site-target-dir }}`
+        echo "site-output-dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+        REAL_REQ_PATH=`realpath ${{ inputs.docs-dir }}/${{ inputs.requirements-file-name }}`
+        echo "requirements-file=$REAL_REQ_PATH" >> "$GITHUB_OUTPUT"
+        MKDOCS_PATH=`realpath ${{ inputs.docs-dir }}/${{ inputs.mkdocs-file-name }}`
+        echo "mkdocs-file=$MKDOCS_PATH" >> "$GITHUB_OUTPUT"
+    - name: Install aria2, yq and Plantuml
+      shell: bash
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt-get update
+        # needed by apt caches
+        # sudo apt-get install -y aria2
+        #sudo apt install -y apt-utils
+        #sudo apt install texlive-latex-extra -y
+        #sudo apt install texlive-fonts-extra -y
+        #sudo apt install graphviz -y
+        sudo curl -o ./plantuml.jar -L http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+        sudo printf '#!/bin/sh\nexec java -Djava.awt.headless=true -jar %b/plantuml.jar "$@"' $PWD > plantuml
+        sudo chmod +x plantuml
+    - name: Install and cache apt packages
+      uses: tecolicom/actions-use-apt-tools@v1
+      with:
+        tools: apt-utils texlive-latex-extra texlive-fonts-extra graphviz libgs-dev
+        method: timestamp
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: corretto
+        java-version: 11
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+    - name: Upgrade pip & install Virtualenv and pandoc
+      shell: bash
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install virtualenv
+        python3 -m pip install pypandoc
+        python3 -c "from pypandoc.pandoc_download import download_pandoc;download_pandoc()"
+    - name: install python requirements
+      shell: bash
+      run: |
+        pip install -r ${{ steps.setup-paths.outputs.requirements-file }}
+    - name: Run Mkdocs
+      id: run-mkdocs
+      shell: bash
+      run: |
+        export PATH="$PWD:$PATH"
+        echo "==== Running with"
+        echo "==> PATH: $PATH"
+        echo "==> MKDOCS_FILE: ${{ steps.setup-paths.outputs.mkdocs-file }}" 
+        echo "==> SITE_DIR: ${{ steps.setup-paths.outputs.site-output-dir }}"
+        mkdocs build -s --config-file "${{ steps.setup-paths.outputs.mkdocs-file }}" --site-dir ${{ inputs.site-target-dir }}
+    - name: Generate Tech-docs metadata
+      id: gen-techdocs-metadata
+      if: |
+        inputs.for-techdocs == 'true' || inputs.for-techdocs == 'True' 
+          || inputs.for-techdocs == 'yes' || inputs.for-techdocs == 'Yes' 
+      shell: bash
+      run: |
+        sudo wget -qO yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod +x yq
+        ./yq -oj eval '{"site_description" : .site_description, "site_name" : .site_name}' \
+        "${{ steps.setup-paths.outputs.mkdocs-file }}" > \
+        "${{ steps.setup-paths.outputs.site-output-dir }}/techdocs_metadata.json"
