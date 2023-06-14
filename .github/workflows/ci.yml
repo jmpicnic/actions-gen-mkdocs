@@ -5,14 +5,14 @@ on: [push, pull_request]
 jobs:
   validate-featureBranch:
     if: github.event_name == 'push' && github.ref != 'refs/heads/main'
-    runs-on: light
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: denisa/clq-action@v1
         id: clq-validate
         with:
           changeMap: .github/clq/changemap.json
-          dockerProxy: artifactory.flexport.io/docker/
+#          dockerProxy: artifactory....
           mode: feature
       - name: Echo changelog values
         run: |
@@ -26,7 +26,7 @@ jobs:
           body: ${{ steps.clq-validate.outputs.changes }}
   validate-release:
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
-    runs-on: light
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: denisa/clq-action@v1
@@ -39,16 +39,16 @@ jobs:
         with:
           mode: test
           tag: ${{ steps.clq-extract.outputs.tag }}
-  commit-message-has-jira:
-    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
-    runs-on: light
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - uses: actions/fpos-commit-message@v1
+#  commit-message-has-jira:
+#    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+#    runs-on: light
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 0
+#      - uses: actions/commit-message@v1 # UNCLEAR, find what action could be used.
   lint:
-    runs-on: light
+    runs-on: ubuntu-latest
     steps:
       - name: "Parses the GITHUB_SERVER_URL and returns the DOMAIN"
         id: get-domain
@@ -70,8 +70,8 @@ jobs:
           VALIDATE_JSCPD: false
   pr-required-jobs:
     if: github.event_name == 'pull_request' && always()
-    runs-on: light
-    needs: [commit-message-has-jira, lint, validate-release]
+    runs-on: ubuntu-latest
+    needs: [lint, validate-release] # [commit-message-has-jira, lint, validate-release]
     steps:
     - run: |
         set -x

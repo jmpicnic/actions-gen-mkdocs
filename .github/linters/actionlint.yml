@@ -1,9 +1,9 @@
 ---
 # actionlint configuration file, information found below
 # https://github.com/rhysd/actionlint/blob/main/docs/config.md
-self-hosted-runner:
+#self-hosted-runner:
   # Labels of self-hosted runner in array of string
-  labels:
-    - light
-    - default
-    - heavy
+  #labels:
+  #  - light
+  #  - default
+  #  - heavy
