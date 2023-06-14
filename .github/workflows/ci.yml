@@ -33,7 +33,7 @@ jobs:
         id: clq-extract
         with:
           changeMap: .github/clq/changemap.json
-          dockerProxy: artifactory.flexport.io/docker/
+          #dockerProxy: 
           mode: release
       - uses: denisa/semantic-tag-helper@v1
         with:
@@ -94,7 +94,7 @@ jobs:
         id: clq-extract
         with:
           changeMap: .github/clq/changemap.json
-          dockerProxy: artifactory.flexport.io/docker/
+          # dockerProxy
       - uses: denisa/semantic-tag-helper@v1
         with:
           mode: set
