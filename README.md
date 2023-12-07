@@ -21,8 +21,8 @@ This action is intended to be used as part of a workflow that builds and publish
   * Default: `requirements.txt`
 * `mkdocs-file-name`: The name of the mkdocs config file relative to `docs-dir`
   * Default: `mkdocs.yml`
-* `for-techdocs`: If `Yes`, `yes`, `True` or `true` it will generate the required `techdocs_metadata.json` file for Backstage.
-  * Default: `True`
+<!-- * `for-techdocs`: If `Yes`, `yes`, `True` or `true` it will generate the required `techdocs_metadata.json` file for Backstage. 
+  * Default: `True` -->
 
 ### Outputs
 
@@ -45,12 +45,9 @@ on:
   push:
     branches:
       - main
-#    Uncomment once the actions are tested and ready.
-#    paths:
-#      - docs/**
 jobs:
   generate-domain-docs:
-    name: generate docs
+    name: generate-docs
     runs-on: default
     steps:
       - name: Checkout code
@@ -61,4 +58,11 @@ jobs:
         with:
           docs-dir: "./docs"
           site-target-dir: "site"
+          requirements-file-name: special-requirements.txt
+          mkdocs-file-name: mkdocs-ghpages.yml
+          for-techdocs: False
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2 
+        with:
+          path: ${{ steps.generate-docs.outputs.generated-site }}
 ```

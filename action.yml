@@ -9,7 +9,7 @@ inputs:
   site-target-dir:
     description: |
       Directory where the site is to be generated, **RELATIVE TO `docs-dir`**
-    default: "./gen-site"
+    default: "./site"
   requirements-file-name:
     description: The name of the Python requirements file relative to docs-dir
     default: "requirements.txt"
@@ -36,46 +36,52 @@ runs:
         echo "requirements-file=$REAL_REQ_PATH" >> "$GITHUB_OUTPUT"
         MKDOCS_PATH=`realpath ${{ inputs.docs-dir }}/${{ inputs.mkdocs-file-name }}`
         echo "mkdocs-file=$MKDOCS_PATH" >> "$GITHUB_OUTPUT"
-    - name: Install aria2, yq and Plantuml
-      shell: bash
-      run: |
-        export DEBIAN_FRONTEND=noninteractive
-        sudo apt-get update
-        # needed by apt caches
-        # sudo apt-get install -y aria2
-        #sudo apt install -y apt-utils
-        #sudo apt install texlive-latex-extra -y
-        #sudo apt install texlive-fonts-extra -y
-        #sudo apt install graphviz -y
-        sudo curl -o ./plantuml.jar -L http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-        sudo printf '#!/bin/sh\nexec java -Djava.awt.headless=true -jar %b/plantuml.jar "$@"' $PWD > plantuml
-        sudo chmod +x plantuml
-    - name: Install and cache apt packages
-      uses: tecolicom/actions-use-apt-tools@v1
+    - name: Install Ubuntu Packages
+      uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        tools: apt-utils texlive-latex-extra texlive-fonts-extra graphviz libgs-dev
-        method: timestamp
-    - name: Setup Java
+        version: 1.0
+        packages: graphviz texlive pandoc ghostscript tree
+        # execute_install_scripts: true
+    - name: Install Java
       uses: actions/setup-java@v3
       with:
         distribution: corretto
-        java-version: 11
-    - name: Set up Python
+        java-version: '21'
+    - name: get the latest plantuml
+      shell: bash
+      run: |
+        wget -q https://github.com/plantuml/plantuml/releases/download/v1.2023.12/plantuml-1.2023.12.jar -o plantuml.jar
+    - name: Check dot installation
+      shell: bash
+      run: |
+        which dot
+        sudo dot -c
+        java -Djava.awt.headless=true -jar plantuml.jar -testdot
+    - name: Install Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
-        cache: 'pip'
-    - name: Upgrade pip & install Virtualenv and pandoc
+        python-version: '3.11'
+        cache: pip
+        cache-dependency-path: ${{ steps.setup-paths.outputs.requirements-file }}
+    - name: Upgrade pip & install from ${{ steps.setup-paths.outputs.requirements-file }}
       shell: bash
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install virtualenv
-        python3 -m pip install pypandoc
-        python3 -c "from pypandoc.pandoc_download import download_pandoc;download_pandoc()"
-    - name: install python requirements
-      shell: bash
+        python3 -m pip install -r ${{ steps.setup-paths.outputs.requirements-file }}
+#        python3 -m pip install pypandoc
+#        python3 -c "from pypandoc.pandoc_download import download_pandoc;download_pandoc()"
+    - name: Check Versions
       run: |
-        pip install -r ${{ steps.setup-paths.outputs.requirements-file }}
+        lsb_release -a
+        python --version
+        java --version
+        mkdocs --version
+        pandoc --version
+        echo -n "ghostscript: "
+        gs --version
+        latex --version
+        dot -V
+        java -Djava.awt.headless=true -jar plantuml.jar -version
     - name: Run Mkdocs
       id: run-mkdocs
       shell: bash
@@ -86,6 +92,12 @@ runs:
         echo "==> MKDOCS_FILE: ${{ steps.setup-paths.outputs.mkdocs-file }}" 
         echo "==> SITE_DIR: ${{ steps.setup-paths.outputs.site-output-dir }}"
         mkdocs build -s --config-file "${{ steps.setup-paths.outputs.mkdocs-file }}" --site-dir ${{ inputs.site-target-dir }}
+    - name: Fix permissions
+      shell: bash
+      run: |
+        chmod -c -R +rX ${{ steps.setup-paths.outputs.site-output-dir }} | while read line; do
+          echo "::warning title=Invalid file permissions automatically fixed::$line"
+        done
     - name: Generate Tech-docs metadata
       id: gen-techdocs-metadata
       if: |
