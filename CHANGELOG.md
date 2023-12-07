@@ -18,6 +18,12 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.0.3] - 2023-12-07
+
+### Fixed
+
+- Fixed Plantuml download option
+
 ## [1.0.2] - 2023-12-07
 
 ### Fixed
