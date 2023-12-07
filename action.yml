@@ -71,6 +71,7 @@ runs:
 #        python3 -m pip install pypandoc
 #        python3 -c "from pypandoc.pandoc_download import download_pandoc;download_pandoc()"
     - name: Check Versions
+      shell: bash
       run: |
         lsb_release -a
         python --version

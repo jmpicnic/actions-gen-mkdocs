@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Generate Docs
         id: gen-docs
-        uses: jmpicnic/action-gen-mkdocs@v1
+        uses: jmpicnic/actions-gen-mkdocs@v1
         with:
           docs-dir: "./docs"
           site-target-dir: "site"
