@@ -18,6 +18,12 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.1.0] - 2024-05-03
+
+### Added
+
+- Installed package `pandoc-citeproc` to support BibTex style citations.
+
 ## [1.0.3] - 2023-12-07
 
 ### Fixed

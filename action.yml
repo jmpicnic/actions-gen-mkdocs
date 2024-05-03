@@ -40,7 +40,7 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
         version: 1.0
-        packages: graphviz texlive pandoc ghostscript tree
+        packages: graphviz texlive pandoc pandoc-citeproc ghostscript tree
         # execute_install_scripts: true
     - name: Install Java
       uses: actions/setup-java@v3
