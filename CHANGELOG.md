@@ -18,6 +18,12 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.1.1] - 2024-05-03
+
+### Fixed
+
+- Markdown linting error in `README.md`
+
 ## [1.1.0] - 2024-05-03
 
 ### Added

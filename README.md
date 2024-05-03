@@ -12,7 +12,7 @@ This action is intended to be used as part of a workflow that builds and publish
   * Default: `.`, the root directory of the repository
 * `site-target-dir`: The directory where the HTML site is to be generated, **RELATIVE** to the value specified in `docs-dir`
   * Default: `./gen-site`
-* `requirements-file-name`: The name of the python pip requirements file containing all the extensions and plugins for mkdocs **RELATIVE** to `docs-dir`. 
+* `requirements-file-name`: The name of the python pip requirements file containing all the extensions and plugins for mkdocs **RELATIVE** to `docs-dir`.
   * Default: `requirements.txt`
 
   Note that this action supports some extensions that require non-python tools, installed separately. The ones currently supported are:
