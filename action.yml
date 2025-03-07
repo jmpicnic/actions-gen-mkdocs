@@ -60,6 +60,10 @@ runs:
         which dot
         sudo dot -c
         java -Djava.awt.headless=true -jar plantuml.jar -testdot
+    - name: Echo Python
+      shell: bash
+      run: |
+        echo "Python version: ${{ inputs.python-version }}"
     - name: Install Python
       uses: actions/setup-python@v4
       with:
