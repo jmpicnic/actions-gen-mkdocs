@@ -18,6 +18,10 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.1.3] - 2025-03-07
+
+- Fixed parameter inputs.python-version reference
+
 ## [1.1.2] - 2025-03-07
 
 ### Fixed

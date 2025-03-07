@@ -63,7 +63,7 @@ runs:
     - name: Install Python
       uses: actions/setup-python@v4
       with:
-        python-version: python-version
+        python-version: ${{ inputs.python-version }}
         cache: pip
         cache-dependency-path: ${{ steps.setup-paths.outputs.requirements-file }}
     - name: Upgrade pip & install from ${{ steps.setup-paths.outputs.requirements-file }}
