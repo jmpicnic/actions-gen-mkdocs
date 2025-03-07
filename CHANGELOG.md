@@ -18,6 +18,12 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.1.2] - 2025-03-07
+
+### Fixed
+
+- Bump Python version to 3.12
+
 ## [1.1.1] - 2024-05-03
 
 ### Fixed

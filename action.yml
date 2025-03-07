@@ -19,6 +19,9 @@ inputs:
   for-techdocs:
     description: Whether the generation is intended to be used with techdocs-cli to publish to Backstage
     default: "True"
+  python-version:
+    description: The version of Python to use
+    default: "3.12"
 outputs:
   generated-site:
     description: The directory where the generated site is placed
@@ -60,7 +63,7 @@ runs:
     - name: Install Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: python-version
         cache: pip
         cache-dependency-path: ${{ steps.setup-paths.outputs.requirements-file }}
     - name: Upgrade pip & install from ${{ steps.setup-paths.outputs.requirements-file }}
