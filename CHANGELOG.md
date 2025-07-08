@@ -18,6 +18,48 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.1.15] - 2025-07-08
+
+### Fixed
+
+- Revert to 1.1.7
+
+## [1.1.13] - 2025-07-08
+
+### Fixed
+
+- Removed version outputs
+
+## [1.1.12] - 2025-07-08
+
+### Fixed
+
+- Removed graphviz as not needed if plantuml is run with
+
+## [1.1.11] - 2025-07-08
+
+### Fixed
+
+- Moved back to latest of apt install action.
+
+## [1.1.10] - 2025-07-08
+
+### Fixed
+
+- Added more dot installation debug output.
+
+## [1.1.9] - 2025-07-08
+
+### Fixed
+
+- More comprehensive error reporting for `dot` installation.
+
+## [1.1.8] - 2025-07-08
+
+### Fixed
+
+- Print `which dot` command output.
+
 ## [1.1.7] - 2025-07-08
 
 ### Fixed
