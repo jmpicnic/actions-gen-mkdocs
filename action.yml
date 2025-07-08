@@ -109,21 +109,21 @@ runs:
         python3 -m pip install -r ${{ steps.setup-paths.outputs.requirements-file }}
 #        python3 -m pip install pypandoc
 #        python3 -c "from pypandoc.pandoc_download import download_pandoc;download_pandoc()"
-    - name: Check Versions
-      id: check-versions
-      shell: bash
-      run: |
-        set -x
-        lsb_release -a
-        python --version
-        java --version
-        mkdocs --version
-        pandoc --version
-        echo -n "ghostscript: "
-        gs --version
-        latex --version
-        dot -V
-        java -Djava.awt.headless=true -jar plantuml.jar -version
+    # - name: Check Versions
+    #   id: check-versions
+    #   shell: bash
+    #   run: |
+    #     set -x
+    #     lsb_release -a
+    #     python --version
+    #     java --version
+    #     mkdocs --version
+    #     pandoc --version
+    #     echo -n "ghostscript: "
+    #     gs --version
+    #     latex --version
+    #     dot -V
+    #     java -Djava.awt.headless=true -jar plantuml.jar -version
     - name: Run Mkdocs
       id: run-mkdocs
       shell: bash
