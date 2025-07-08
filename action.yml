@@ -33,6 +33,7 @@ runs:
       id: setup-paths
       shell: bash
       run: |
+        set -x
         OUT_DIR=`realpath ${{ inputs.docs-dir }}/${{ inputs.site-target-dir }}`
         echo "site-output-dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
         REAL_REQ_PATH=`realpath ${{ inputs.docs-dir }}/${{ inputs.requirements-file-name }}`
@@ -40,46 +41,63 @@ runs:
         MKDOCS_PATH=`realpath ${{ inputs.docs-dir }}/${{ inputs.mkdocs-file-name }}`
         echo "mkdocs-file=$MKDOCS_PATH" >> "$GITHUB_OUTPUT"
     - name: Install Ubuntu Packages
+      id: install-ubuntu-packages
       uses: awalsh128/cache-apt-pkgs-action@v1.5.0
       with:
         version: 1.0
         packages: graphviz texlive pandoc pandoc-citeproc ghostscript tree
         # execute_install_scripts: true
     - name: Install Java
+      id: install-java
       uses: actions/setup-java@v3
       with:
         distribution: corretto
         java-version: '21'
     - name: get the latest plantuml
+      id: get-plantuml
       shell: bash
       run: |
+        set -x
         wget -q https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar -O plantuml.jar
     - name: Check dot installation
+      id: check-dot
       shell: bash
       run: |
+        set -x
         which dot
         sudo dot -c
         java -Djava.awt.headless=true -jar plantuml.jar -testdot
     - name: Echo Python
+      id: echo-python
       shell: bash
       run: |
+        set -x
         echo "Python version: ${{ inputs.python-version }}"
     - name: Install Python
+      id: install-python
+      # Using setup-python@v4 to ensure Python is installed and pip is set up correctly
+      # This action also supports caching pip dependencies
       uses: actions/setup-python@v4
       with:
         python-version: ${{ inputs.python-version }}
         cache: pip
         cache-dependency-path: ${{ steps.setup-paths.outputs.requirements-file }}
     - name: Upgrade pip & install from ${{ steps.setup-paths.outputs.requirements-file }}
+      id: install-pip
+      if: steps.install-python.outputs.python-version == inputs.python-version
+      # Using bash shell to ensure compatibility with the rest of the script
       shell: bash
       run: |
+        set -x
         python3 -m pip install --upgrade pip
         python3 -m pip install -r ${{ steps.setup-paths.outputs.requirements-file }}
 #        python3 -m pip install pypandoc
 #        python3 -c "from pypandoc.pandoc_download import download_pandoc;download_pandoc()"
     - name: Check Versions
+      id: check-versions
       shell: bash
       run: |
+        set -x
         lsb_release -a
         python --version
         java --version
@@ -94,6 +112,7 @@ runs:
       id: run-mkdocs
       shell: bash
       run: |
+        set -x
         export PATH="$PWD:$PATH"
         echo "==== Running with"
         echo "==> PATH: $PATH"
@@ -101,8 +120,10 @@ runs:
         echo "==> SITE_DIR: ${{ steps.setup-paths.outputs.site-output-dir }}"
         mkdocs build -s --config-file "${{ steps.setup-paths.outputs.mkdocs-file }}" --site-dir ${{ inputs.site-target-dir }}
     - name: Fix permissions
+      id: fix-permissions
       shell: bash
       run: |
+        set -x
         chmod -c -R +rX ${{ steps.setup-paths.outputs.site-output-dir }} | while read line; do
           echo "::warning title=Invalid file permissions automatically fixed::$line"
         done
@@ -113,6 +134,7 @@ runs:
           || inputs.for-techdocs == 'yes' || inputs.for-techdocs == 'Yes'
       shell: bash
       run: |
+        set -x
         sudo wget -qO yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod +x yq
         ./yq -oj eval '{"site_description" : .site_description, "site_name" : .site_name}' \
