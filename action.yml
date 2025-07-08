@@ -66,11 +66,19 @@ runs:
         set -x
         set +e
         which dot
-        echo "DOT EXIT: $?"
-        set -e
-        which dot
+        DOT_CHECK=$?
+        echo "DOT EXIT: $DOT_CHECK""
         sudo dot -c
+        SDOT_CHECK=$?
+        echo "DOT -c EXIT: $SDOT_CHECK"
         java -Djava.awt.headless=true -jar plantuml.jar -testdot
+        JAVA_DOT_CHECK=$?
+        echo "Java CHECK EXIT: $JAVA_DOT_CHECK"
+        set -e
+        if [ $DOT_CHECK -ne 0 ] || [ $SDOT_CHECK -ne 0 ] || [ $JAVA_DOT_CHECK -ne 0 ]; then
+          echo "::error title=Graphviz dot not installed::Please install Graphviz dot to use this action."
+          exit 1
+        fi
     - name: Echo Python
       id: echo-python
       shell: bash
