@@ -33,6 +33,7 @@ runs:
       id: setup-paths
       shell: bash
       run: |
+        echo $PATH
         set -x
         OUT_DIR=`realpath ${{ inputs.docs-dir }}/${{ inputs.site-target-dir }}`
         echo "site-output-dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
@@ -65,9 +66,11 @@ runs:
       run: |
         set -x
         set +e
+        echo $PATH
+        dpkg -s graphviz
         which dot
         DOT_CHECK=$?
-        echo "DOT EXIT: $DOT_CHECK""
+        echo "DOT EXIT: $DOT_CHECK"
         sudo dot -c
         SDOT_CHECK=$?
         echo "DOT -c EXIT: $SDOT_CHECK"
