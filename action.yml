@@ -54,34 +54,35 @@ runs:
       with:
         distribution: corretto
         java-version: '21'
-    - name: get the latest plantuml
-      id: get-plantuml
-      shell: bash
-      run: |
-        set -x
-        wget -q https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar -O plantuml.jar
-    - name: Check dot installation
-      id: check-dot
-      shell: bash
-      run: |
-        set -x
-        set +e
-        echo $PATH
-        dpkg -s graphviz
-        which dot
-        DOT_CHECK=$?
-        echo "DOT EXIT: $DOT_CHECK"
-        sudo dot -c
-        SDOT_CHECK=$?
-        echo "DOT -c EXIT: $SDOT_CHECK"
-        java -Djava.awt.headless=true -jar plantuml.jar -testdot
-        JAVA_DOT_CHECK=$?
-        echo "Java CHECK EXIT: $JAVA_DOT_CHECK"
-        set -e
-        if [ $DOT_CHECK -ne 0 ] || [ $SDOT_CHECK -ne 0 ] || [ $JAVA_DOT_CHECK -ne 0 ]; then
-          echo "::error title=Graphviz dot not installed::Please install Graphviz dot to use this action."
-          exit 1
-        fi
+    # - name: get the latest plantuml
+    #   id: get-plantuml
+    #   shell: bash
+    #   run: |
+    #     set -x
+    #     wget -q https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar -O plantuml.jar
+    # - name: Check dot installation
+    #   id: check-dot
+    #   shell: bash
+    #   run: |
+    #     sudo apt install -y graphviz
+    #     set -x
+    #     set +e
+    #     echo $PATH
+    #     dpkg -s graphviz
+    #     which dot
+    #     DOT_CHECK=$?
+    #     echo "DOT EXIT: $DOT_CHECK"
+    #     sudo dot -c
+    #     SDOT_CHECK=$?
+    #     echo "DOT -c EXIT: $SDOT_CHECK"
+    #     java -Djava.awt.headless=true -jar plantuml.jar -testdot
+    #     JAVA_DOT_CHECK=$?
+    #     echo "Java CHECK EXIT: $JAVA_DOT_CHECK"
+    #     set -e
+    #     if [ $DOT_CHECK -ne 0 ] || [ $SDOT_CHECK -ne 0 ] || [ $JAVA_DOT_CHECK -ne 0 ]; then
+    #       echo "::error title=Graphviz dot not installed::Please install Graphviz dot to use this action."
+    #       exit 1
+    #     fi
     - name: Echo Python
       id: echo-python
       shell: bash

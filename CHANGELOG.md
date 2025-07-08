@@ -18,6 +18,12 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.1.12] - 2025-07-08
+
+### Fixed
+
+- Removed graphviz as not needed if plantuml is run with docker.
+
 ## [1.1.11] - 2025-07-08
 
 ### Fixed
