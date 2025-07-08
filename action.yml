@@ -33,6 +33,7 @@ runs:
       id: setup-paths
       shell: bash
       run: |
+        echo $PATH
         set -x
         OUT_DIR=`realpath ${{ inputs.docs-dir }}/${{ inputs.site-target-dir }}`
         echo "site-output-dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
@@ -42,7 +43,7 @@ runs:
         echo "mkdocs-file=$MKDOCS_PATH" >> "$GITHUB_OUTPUT"
     - name: Install Ubuntu Packages
       id: install-ubuntu-packages
-      uses: awalsh128/cache-apt-pkgs-action@v1.5.0
+      uses: awalsh128/cache-apt-pkgs-action@latest
       with:
         version: 1.0
         packages: graphviz texlive pandoc pandoc-citeproc ghostscript tree
@@ -53,20 +54,35 @@ runs:
       with:
         distribution: corretto
         java-version: '21'
-    - name: get the latest plantuml
-      id: get-plantuml
-      shell: bash
-      run: |
-        set -x
-        wget -q https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar -O plantuml.jar
-    - name: Check dot installation
-      id: check-dot
-      shell: bash
-      run: |
-        set -x
-        which dot
-        sudo dot -c
-        java -Djava.awt.headless=true -jar plantuml.jar -testdot
+    # - name: get the latest plantuml
+    #   id: get-plantuml
+    #   shell: bash
+    #   run: |
+    #     set -x
+    #     wget -q https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar -O plantuml.jar
+    # - name: Check dot installation
+    #   id: check-dot
+    #   shell: bash
+    #   run: |
+    #     sudo apt install -y graphviz
+    #     set -x
+    #     set +e
+    #     echo $PATH
+    #     dpkg -s graphviz
+    #     which dot
+    #     DOT_CHECK=$?
+    #     echo "DOT EXIT: $DOT_CHECK"
+    #     sudo dot -c
+    #     SDOT_CHECK=$?
+    #     echo "DOT -c EXIT: $SDOT_CHECK"
+    #     java -Djava.awt.headless=true -jar plantuml.jar -testdot
+    #     JAVA_DOT_CHECK=$?
+    #     echo "Java CHECK EXIT: $JAVA_DOT_CHECK"
+    #     set -e
+    #     if [ $DOT_CHECK -ne 0 ] || [ $SDOT_CHECK -ne 0 ] || [ $JAVA_DOT_CHECK -ne 0 ]; then
+    #       echo "::error title=Graphviz dot not installed::Please install Graphviz dot to use this action."
+    #       exit 1
+    #     fi
     - name: Echo Python
       id: echo-python
       shell: bash
@@ -93,21 +109,21 @@ runs:
         python3 -m pip install -r ${{ steps.setup-paths.outputs.requirements-file }}
 #        python3 -m pip install pypandoc
 #        python3 -c "from pypandoc.pandoc_download import download_pandoc;download_pandoc()"
-    - name: Check Versions
-      id: check-versions
-      shell: bash
-      run: |
-        set -x
-        lsb_release -a
-        python --version
-        java --version
-        mkdocs --version
-        pandoc --version
-        echo -n "ghostscript: "
-        gs --version
-        latex --version
-        dot -V
-        java -Djava.awt.headless=true -jar plantuml.jar -version
+    # - name: Check Versions
+    #   id: check-versions
+    #   shell: bash
+    #   run: |
+    #     set -x
+    #     lsb_release -a
+    #     python --version
+    #     java --version
+    #     mkdocs --version
+    #     pandoc --version
+    #     echo -n "ghostscript: "
+    #     gs --version
+    #     latex --version
+    #     dot -V
+    #     java -Djava.awt.headless=true -jar plantuml.jar -version
     - name: Run Mkdocs
       id: run-mkdocs
       shell: bash
