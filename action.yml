@@ -64,6 +64,10 @@ runs:
       shell: bash
       run: |
         set -x
+        set +e
+        which dot
+        echo "DOT EXIT: $?"
+        set -e
         which dot
         sudo dot -c
         java -Djava.awt.headless=true -jar plantuml.jar -testdot
