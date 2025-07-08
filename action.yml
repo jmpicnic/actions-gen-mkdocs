@@ -43,7 +43,7 @@ runs:
         echo "mkdocs-file=$MKDOCS_PATH" >> "$GITHUB_OUTPUT"
     - name: Install Ubuntu Packages
       id: install-ubuntu-packages
-      uses: awalsh128/cache-apt-pkgs-action@latest
+      uses: awalsh128/cache-apt-pkgs-action@1.5.0
       with:
         version: 1.0
         packages: graphviz texlive pandoc pandoc-citeproc ghostscript tree
