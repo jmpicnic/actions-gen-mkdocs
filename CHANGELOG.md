@@ -18,6 +18,13 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
+## [1.1.6] - 2025-07-08
+
+### Fixed
+
+- Upgraded plantuml to version 1.2025.4
+- Pinned `awalsh128/cache-apt-pkgs-action` to version 1.5.0 to avoid issues with `apt-fast` installation.
+
 ## [1.1.5] - 2025-03-07
 
 ### Fixed

@@ -40,7 +40,7 @@ runs:
         MKDOCS_PATH=`realpath ${{ inputs.docs-dir }}/${{ inputs.mkdocs-file-name }}`
         echo "mkdocs-file=$MKDOCS_PATH" >> "$GITHUB_OUTPUT"
     - name: Install Ubuntu Packages
-      uses: awalsh128/cache-apt-pkgs-action@latest
+      uses: awalsh128/cache-apt-pkgs-action@v1.5.0
       with:
         version: 1.0
         packages: graphviz texlive pandoc pandoc-citeproc ghostscript tree
@@ -53,7 +53,7 @@ runs:
     - name: get the latest plantuml
       shell: bash
       run: |
-        wget -q https://github.com/plantuml/plantuml/releases/download/v1.2023.12/plantuml-1.2023.12.jar -O plantuml.jar
+        wget -q https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar -O plantuml.jar
     - name: Check dot installation
       shell: bash
       run: |
@@ -97,7 +97,7 @@ runs:
         export PATH="$PWD:$PATH"
         echo "==== Running with"
         echo "==> PATH: $PATH"
-        echo "==> MKDOCS_FILE: ${{ steps.setup-paths.outputs.mkdocs-file }}" 
+        echo "==> MKDOCS_FILE: ${{ steps.setup-paths.outputs.mkdocs-file }}"
         echo "==> SITE_DIR: ${{ steps.setup-paths.outputs.site-output-dir }}"
         mkdocs build -s --config-file "${{ steps.setup-paths.outputs.mkdocs-file }}" --site-dir ${{ inputs.site-target-dir }}
     - name: Fix permissions
@@ -109,8 +109,8 @@ runs:
     - name: Generate Tech-docs metadata
       id: gen-techdocs-metadata
       if: |
-        inputs.for-techdocs == 'true' || inputs.for-techdocs == 'True' 
-          || inputs.for-techdocs == 'yes' || inputs.for-techdocs == 'Yes' 
+        inputs.for-techdocs == 'true' || inputs.for-techdocs == 'True'
+          || inputs.for-techdocs == 'yes' || inputs.for-techdocs == 'Yes'
       shell: bash
       run: |
         sudo wget -qO yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
