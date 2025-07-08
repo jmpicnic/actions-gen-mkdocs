@@ -22,7 +22,7 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
 
 ### Fixed
 
-- Added `set -x` and id's to all steps for better debugging and logging.
+- Added `set -x` and IDs to all steps for better debugging and logging.
 
 ## [1.1.6] - 2025-07-08
 
